@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mapped-sphere-pinn"
+version = "1.0.0"
+description = "Meshfree atlas-based PINN/FEM framework for forward and inverse PDEs on complex 3D geometry (paper examples)."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { file = "LICENSE" }
+dependencies = [
+    "torch>=2.0",
+    "numpy>=1.23",
+    "matplotlib>=3.6",
+]
+
+[tool.setuptools]
+packages = ["mapped_sphere", "mapped_sphere.elastoplastic"]

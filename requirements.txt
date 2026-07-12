@@ -1,0 +1,5 @@
+# Runtime dependencies for the paper examples.
+# A CPU-only PyTorch build is sufficient; CUDA/MPS are used automatically if present.
+torch>=2.0
+numpy>=1.23
+matplotlib>=3.6
