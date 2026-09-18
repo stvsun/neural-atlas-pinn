@@ -24,3 +24,11 @@ outputs/
 # OS / editor
 .DS_Store
 .ipynb_checkpoints/
+
+# Example 2: downloaded Stanford Bunny scan
+examples/example2_bunny_poisson/data/
+
+# Example 2 ships its frozen atlases and README figure
+!examples/example2_bunny_poisson/assets/*.npz
+!examples/example2_bunny_poisson/assets/*.pt
+!examples/example2_bunny_poisson/figures/*.png
