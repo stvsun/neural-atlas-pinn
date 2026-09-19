@@ -6,9 +6,10 @@ Reference implementation accompanying the paper
 > — WaiChing Sun (Columbia University)
 
 This repository contains the **minimal, self-contained code needed to reproduce the
-numerical examples in the paper**. Each example is analytic — the geometry, forcing,
-and reference solutions are generated inside the scripts — so no external meshes,
-checkpoints, or datasets are required. Run a script and it reproduces the result.
+numerical examples in the paper**. Examples 1 and 3–5 are analytic — the geometry, forcing,
+and reference solutions are generated inside the scripts. Example 2 runs on the Stanford
+Bunny: it downloads the scan (3 MB) on first use and ships its frozen neural atlas (5 MB).
+Run a script and it reproduces the result.
 
 The method covers a 3D solid with an **atlas of overlapping coordinate charts**, each
 mapping a reference cube/ball onto a piece of the physical domain. PDEs are pulled back
@@ -20,16 +21,13 @@ discretization; charts are coupled by **multiplicative Schwarz** iteration.
 
 ## Examples included
 
-The paper has five numerical examples. This repository reproduces **four of them**.
-Example 2 (heat conduction on the Stanford Bunny) is **intentionally omitted** because it
-depends on large external geometry assets (the Bunny surface mesh, a trained neural SDF,
-and a frozen atlas) that are out of scope for this lightweight reproduction package. The
-directory names below keep the paper's example numbering so the code maps 1:1 to the text.
+The paper has five numerical examples; this repository reproduces all five. The directory
+names keep the paper's example numbering so the code maps 1:1 to the text.
 
 | Paper example | Problem | Geometry | Directory |
 |---|---|---|---|
 | **Example 1** | Verification: Laplace/Poisson equation (PINN) | Ellipsoid | `examples/example1_ellipsoid_laplace/` |
-| *Example 2* | *Heat conduction (Stanford Bunny)* | *— omitted —* | *not included* |
+| **Example 2** | Heat conduction / Poisson (Schwarz FEM and PINN on a neural atlas) | Stanford Bunny | `examples/example2_bunny_poisson/` |
 | **Example 3** | Forward elastoplastic boundary-value problem (Schwarz FEM) | Torus | `examples/example3_torus_forward_elastoplastic/` |
 | **Example 4** | Inverse Neo-Hookean parameter identification | Torus | `examples/example4_torus_inverse_neohookean/` |
 | **Example 5** | Inverse elastoplastic parameter identification | Torus | `examples/example5_torus_inverse_elastoplastic/` |
@@ -57,6 +55,12 @@ mapped-sphere-pinn/
 └── examples/                 # one runnable script per paper example (self-contained drivers)
     ├── example1_ellipsoid_laplace/
     │   └── run_ellipsoid_laplace.py
+    ├── example2_bunny_poisson/
+    │   ├── run_fem.py               # boundary-fitted P1 FEM on each chart, Schwarz-coupled
+    │   ├── run_pinn.py              # one PINN per chart, Schwarz-coupled
+    │   ├── plot_results.py          # the Example 2 figure
+    │   ├── geometry.py, atlas.py, chart_fem.py
+    │   └── assets/                  # frozen 8- and 12-chart neural atlases
     ├── example3_torus_forward_elastoplastic/
     │   └── run_forward_bvp.py
     ├── example4_torus_inverse_neohookean/
@@ -68,7 +72,8 @@ mapped-sphere-pinn/
 
 The `examples/` scripts are the entry points. The reusable numerics live in the
 `mapped_sphere` package. Examples 1, 3, and 5 import the package; Example 4's two scripts
-are fully standalone.
+are fully standalone; Example 2 keeps its bunny-specific geometry, atlas and FEM modules in
+its own directory.
 
 ---
 
@@ -92,6 +97,12 @@ from elsewhere.
 
 If you prefer not to install anything, just install the three dependencies
 (`pip install -r requirements.txt`) and run the scripts directly.
+
+Example 2 also needs `scipy` and `pyvista` (VTK) for the exact bunny geometry:
+
+```bash
+pip install -e ".[bunny]"      # or: pip install scipy pyvista
+```
 
 ---
 
@@ -123,6 +134,27 @@ python examples/example1_ellipsoid_laplace/run_ellipsoid_laplace.py --output-dir
 
 **Expected:** relative L² error ≈ `2.26e-3`, max pointwise error ≈ `5.23e-3`
 (Adam, lr `1e-3`, up to 8000 epochs; ~106 s on CPU). Add `--no-plot` to skip figures.
+
+### Example 2 — Poisson on the Stanford Bunny (Schwarz FEM and PINN)
+
+![Example 2: exact solution and FEM / PINN errors on the Stanford Bunny](examples/example2_bunny_poisson/figures/bunny_example2.png)
+
+Manufactured solution `u = sin(πx) sin(πy) sin(πz)` with Dirichlet data on the surface, on
+a frozen neural atlas of the bunny (8 or 12 overlapping charts). The FEM uses boundary-fitted
+P1 elements on each chart; the PINN trains one network per chart. Both are coupled by
+multiplicative Schwarz, and the exact solution is used only as boundary data.
+
+```bash
+python examples/example2_bunny_poisson/run_fem.py  --n-cells 8 16 24 32 48 56 --output-dir out_ex2_fem
+python examples/example2_bunny_poisson/run_pinn.py --output-dir out_ex2_pinn
+python examples/example2_bunny_poisson/plot_results.py --fem-dir out_ex2_fem --pinn-dir out_ex2_pinn
+```
+
+**Expected:** relative L² error on 50,000 interior points — FEM `0.392 %` (8-chart atlas,
+`n = 56`, ~5 min) and `0.255 %` (12-chart); PINN `0.182 %` (12-chart, ~25 min) and `0.211 %`
+(8-chart). The FEM converges at second order.
+See [`examples/example2_bunny_poisson/README.md`](examples/example2_bunny_poisson/README.md)
+for the full refinement table and method notes.
 
 ### Example 3 — Forward elastoplastic BVP on the torus (Schwarz FEM)
 
@@ -177,13 +209,14 @@ Stage 2 recovers `H_kin ≈ 19.58` (true `20.0`, ~2.11 % error). Material `E=200
 
 ## Method in brief
 
-1. **Atlas.** The solid is covered by overlapping charts, each an analytic map from a
-   reference cube/ball to a physical sector, with a smooth partition of unity `ωᵢ`.
+1. **Atlas.** The solid is covered by overlapping charts, each a map from a reference
+   cube/ball to a piece of the body (analytic in Examples 1 and 3–5, a trained decoder
+   network in Example 2), with a partition of unity `ωᵢ`.
 2. **Operator pullback.** The PDE (Poisson, Neo-Hookean elasticity, or J₂
    elastoplasticity) is pulled back onto each reference chart via the chart Jacobian and a
    Piola transform, so all differential operators act in reference coordinates.
-3. **Chart-local solve.** Each chart is solved by a PINN (Example 1) or a P1 vector FEM
-   (Examples 3–5). Elastoplastic response uses a **smooth softplus return mapping** that is
+3. **Chart-local solve.** Each chart is solved by a PINN (Examples 1–2) or a P1 FEM
+   (scalar in Example 2, vector in Examples 3–5). Elastoplastic response uses a **smooth softplus return mapping** that is
    differentiable end-to-end, enabling gradient-based inverse identification.
 4. **Coupling.** Neighboring charts exchange interface data by **multiplicative Schwarz**
    sweeps; the global field is reassembled with the partition of unity.
