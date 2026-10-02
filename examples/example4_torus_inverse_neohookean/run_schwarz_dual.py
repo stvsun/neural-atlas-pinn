@@ -17,12 +17,22 @@ import json
 import math
 import os
 import random
+import sys
 import time
+from pathlib import Path
 from typing import Dict, List, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
+
+
+_REPO_ROOT = str(Path(__file__).resolve().parents[2])
+if _REPO_ROOT not in sys.path:
+    sys.path.insert(0, _REPO_ROOT)
+
+from mapped_sphere.geometry import jacobian
+from mapped_sphere.maps import torus_from_angles, torus_boundary_normals
 
 
 torch.set_default_dtype(torch.float32)
@@ -103,17 +113,8 @@ def normalize_rows(x: torch.Tensor, eps: float = 1e-12) -> torch.Tensor:
 
 
 def gradient_tensor(v: torch.Tensor, x: torch.Tensor, create_graph: bool) -> torch.Tensor:
-    grads = []
-    for i in range(v.shape[1]):
-        gi = torch.autograd.grad(
-            v[:, i],
-            x,
-            grad_outputs=torch.ones_like(v[:, i]),
-            create_graph=create_graph,
-            retain_graph=True,
-        )[0]
-        grads.append(gi.unsqueeze(1))
-    return torch.cat(grads, dim=1)
+    """Return J[i,a] = d(v_i)/d(x_a) using the shared pointwise Jacobian."""
+    return jacobian(v, x, create_graph=create_graph)
 
 
 def neo_hookean_p(F: torch.Tensor, mu: torch.Tensor, K: torch.Tensor) -> torch.Tensor:
@@ -123,27 +124,6 @@ def neo_hookean_p(F: torch.Tensor, mu: torch.Tensor, K: torch.Tensor) -> torch.T
     finv_t = torch.linalg.inv(F).transpose(1, 2)
     log_j = torch.log(det_safe).unsqueeze(-1).unsqueeze(-1)
     return mu * (F - finv_t) + K * log_j * finv_t
-
-
-def torus_from_angles(phi: torch.Tensor, theta: torch.Tensor, rho: torch.Tensor, R: float) -> torch.Tensor:
-    cphi = torch.cos(phi)
-    sphi = torch.sin(phi)
-    cth = torch.cos(theta)
-    sth = torch.sin(theta)
-    rr = R + rho * cth
-    x = rr * cphi
-    y = rr * sphi
-    z = rho * sth
-    return torch.stack([x, y, z], dim=1)
-
-
-def torus_boundary_normals(phi: torch.Tensor, theta: torch.Tensor) -> torch.Tensor:
-    cphi = torch.cos(phi)
-    sphi = torch.sin(phi)
-    cth = torch.cos(theta)
-    sth = torch.sin(theta)
-    n = torch.stack([cth * cphi, cth * sphi, sth], dim=1)
-    return normalize_rows(n)
 
 
 def sample_torus_boundary_full(

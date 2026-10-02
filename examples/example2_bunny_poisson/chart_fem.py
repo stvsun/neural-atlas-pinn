@@ -23,6 +23,9 @@ import scipy.sparse
 import scipy.sparse.linalg
 import torch
 
+from mapped_sphere.geometry import ChartGeometry, jacobian
+from mapped_sphere.piola import diffusion_pullback
+
 # Freudenthal split of the unit cube; corners indexed dz*4 + dy*2 + dx.
 _TETS = np.array([[0, 1, 3, 7], [0, 1, 5, 7], [0, 2, 3, 7], [0, 2, 6, 7], [0, 4, 5, 7], [0, 4, 6, 7]])
 _CORNERS = np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1]])
@@ -55,7 +58,7 @@ class ChartFEM:
         for _ in range(iters):
             xr = xi.clone().requires_grad_(True)
             y = self.atlas.decode(xr, self.i)
-            jac = torch.stack([torch.autograd.grad(y[:, k].sum(), xr, retain_graph=True)[0] for k in range(3)], 1)
+            jac = jacobian(y, xr, create_graph=False)
             res = (y - xt).detach()
             xi = (xr - torch.linalg.solve(jac, res.unsqueeze(-1)).squeeze(-1)).detach()
             if float(res.norm(dim=1).max()) < 1e-13:
@@ -143,12 +146,11 @@ class ChartFEM:
         cent = self.nodes[self.elements].mean(axis=1)
         xi = torch.as_tensor(cent, dtype=self.dtype).requires_grad_(True)
         x = self.atlas.decode(xi, self.i)
-        jac = torch.stack([torch.autograd.grad(x[:, k].sum(), xi, retain_graph=True)[0] for k in range(3)], 1)
-        u_svd, s, vh = torch.linalg.svd(jac)
-        inv_j = vh.transpose(1, 2) @ torch.diag_embed(1.0 / torch.clamp(s, min=1e-3)) @ u_svd.transpose(1, 2)
-        det = torch.clamp(torch.abs(torch.det(jac)), min=1e-6)
-        A = (det[:, None, None] * inv_j @ inv_j.transpose(1, 2)).detach().numpy()
-        det, x = det.detach().numpy(), x.detach().numpy()
+        geometry = ChartGeometry(jacobian(x, xi, create_graph=False))
+        # Use the exact pullback; invalid maps raise instead of silently clipping
+        # singular values or the determinant and changing the differential operator.
+        A = diffusion_pullback(geometry).detach().numpy()
+        det, x = geometry.volume.detach().numpy(), x.detach().numpy()
 
         xe = self.nodes[self.elements]
         B = np.transpose(xe[:, 1:] - xe[:, :1], (0, 2, 1))

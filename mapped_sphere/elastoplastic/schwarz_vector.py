@@ -17,6 +17,8 @@ from typing import Callable, Dict, List, Optional, Tuple
 
 import torch
 
+from mapped_sphere.geometry import jacobian
+
 from .chart_vector_fem import ChartVectorFEMSolver
 from .return_mapping import ReturnMappingState
 
@@ -147,7 +149,6 @@ def _newton_invert_decoder(
 ) -> torch.Tensor:
     """Find xi such that decoder(xi) = x_target via Newton iteration."""
     xi = x_target.clone().detach()
-    N = xi.shape[0]
 
     for it in range(max_iter):
         xi_var = xi.clone().detach().requires_grad_(True)
@@ -158,15 +159,7 @@ def _newton_invert_decoder(
         if res_norm.max().item() < tol:
             break
 
-        grads = []
-        for d in range(3):
-            g = torch.autograd.grad(
-                x_pred[:, d], xi_var,
-                grad_outputs=torch.ones(N, device=device, dtype=dtype),
-                create_graph=False, retain_graph=True,
-            )[0]
-            grads.append(g)
-        J = torch.stack(grads, dim=1)  # (N, 3, 3)
+        J = jacobian(x_pred, xi_var, create_graph=False)
 
         try:
             delta = torch.linalg.solve(J, residual.unsqueeze(-1)).squeeze(-1)

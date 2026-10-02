@@ -30,9 +30,16 @@ import os
 import random
 import sys
 import time
+from pathlib import Path
 
 import numpy as np
 import torch
+
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
+from mapped_sphere.geometry import ChartGeometry, divergence, scalar_gradient
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from atlas import MLP, load_atlas  # noqa: E402
@@ -125,19 +132,20 @@ def main() -> None:
     nets = [MLP(3, 1, args.width, args.depth) for _ in range(K)]
     opts = [torch.optim.Adam(n.parameters(), lr=args.lr) for n in nets]
     frames = [torch.stack([atlas.t1[i], atlas.t2[i], atlas.nvec[i]]) for i in range(K)]
+    frame_geometry = [ChartGeometry(frame.T) for frame in frames]
 
     def grad_x(i, xi):
         """u_i and its physical gradient (the frame is orthonormal: grad_x = F^T grad_xi)."""
         xi = xi.clone().requires_grad_(True)
         u = nets[i](xi)
-        g = torch.autograd.grad(u.sum(), xi, create_graph=True)[0]
-        return u, g @ frames[i]
+        g = scalar_gradient(u, xi)
+        return u, frame_geometry[i].scalar_gradient(g)
 
     def pde_residual(i, xi):
         x = atlas.from_local(xi, i).detach().requires_grad_(True)
         u = nets[i](atlas.local_coords(x, i))
-        g = torch.autograd.grad(u.sum(), x, create_graph=True)[0]
-        lap = sum(torch.autograd.grad(g[:, k].sum(), x, create_graph=True)[0][:, k:k + 1] for k in range(3))
+        g = scalar_gradient(u, x)
+        lap = divergence(g, x)[:, None]
         return s_pde * (-lap - forcing(x))
 
     def interface(i, j, idx, freeze_j=True):

@@ -42,6 +42,7 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from mapped_sphere.device import resolve_device, resolve_dtype
+from mapped_sphere.geometry import ChartGeometry, laplace_beltrami
 from mapped_sphere.utils import set_seed
 
 
@@ -92,29 +93,8 @@ def source_term_mapped_constant(a_axis, b_axis, c_axis, device, dtype):
 def mapped_poisson_residual(model, x_ref, inv_sq, f_mapped):
     x_var = x_ref.clone().detach().requires_grad_(True)
     u = model(x_var)
-    grad_u = torch.autograd.grad(
-        u,
-        x_var,
-        grad_outputs=torch.ones_like(u),
-        create_graph=True,
-    )[0]
-
-    second_derivs = []
-    for i in range(3):
-        d_ui = grad_u[:, i : i + 1]
-        d2_ui = torch.autograd.grad(
-            d_ui,
-            x_var,
-            grad_outputs=torch.ones_like(d_ui),
-            create_graph=True,
-        )[0][:, i : i + 1]
-        second_derivs.append(d2_ui)
-
-    operator = -(
-        inv_sq[0] * second_derivs[0]
-        + inv_sq[1] * second_derivs[1]
-        + inv_sq[2] * second_derivs[2]
-    )
+    geometry = ChartGeometry(torch.diag(inv_sq.rsqrt()))
+    operator = -laplace_beltrami(u, x_var, geometry)[:, None]
     residual = operator - f_mapped
     return residual
 
@@ -458,4 +438,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

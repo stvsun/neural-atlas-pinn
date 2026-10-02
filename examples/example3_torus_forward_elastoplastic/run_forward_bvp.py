@@ -30,6 +30,7 @@ import torch
 _REPO = str(Path(__file__).resolve().parents[2])
 sys.path.insert(0, _REPO)
 
+from mapped_sphere.maps import TorusChart
 from mapped_sphere.elastoplastic.chart_vector_fem import ChartVectorFEMSolver
 from mapped_sphere.elastoplastic.return_mapping import (
     ReturnMappingState,
@@ -61,51 +62,8 @@ class TorusSDF:
         return torch.sqrt((xy - self.R)**2 + x[:, 2]**2) - self.r
 
 
-class TorusChartDecoder(torch.nn.Module):
-    """Analytic map from reference cube [-1,1]^3 to a torus sector."""
-    def __init__(self, R=R_MAJOR, r=R_MINOR, phi_center=0.0,
-                 phi_halfwidth=PHI_HALFWIDTH):
-        super().__init__()
-        self.R, self.r = R, r
-        self.phi_center = phi_center
-        self.phi_halfwidth = phi_halfwidth
-
-    def forward(self, xi: torch.Tensor, **kw) -> torch.Tensor:
-        phi = self.phi_center + xi[:, 0] * self.phi_halfwidth
-        theta = math.pi * xi[:, 1]
-        rho = 0.5 * self.r * (1.0 + xi[:, 2])
-        rr = self.R + rho * torch.cos(theta)
-        return torch.stack([rr * torch.cos(phi), rr * torch.sin(phi),
-                            rho * torch.sin(theta)], dim=1)
-
-    def jacobian(self, xi: torch.Tensor, **kw) -> torch.Tensor:
-        """Exact Jacobian dx/dxi of the analytic torus chart map."""
-        phi = self.phi_center + xi[:, 0] * self.phi_halfwidth
-        theta = math.pi * xi[:, 1]
-        rho = 0.5 * self.r * (1.0 + xi[:, 2])
-
-        sin_phi = torch.sin(phi)
-        cos_phi = torch.cos(phi)
-        sin_theta = torch.sin(theta)
-        cos_theta = torch.cos(theta)
-        rr = self.R + rho * cos_theta
-
-        dphi_dxi0 = self.phi_halfwidth
-        dtheta_dxi1 = math.pi
-        drho_dxi2 = 0.5 * self.r
-
-        J = torch.zeros(xi.shape[0], 3, 3, device=xi.device, dtype=xi.dtype)
-        J[:, 0, 0] = -rr * sin_phi * dphi_dxi0
-        J[:, 1, 0] = rr * cos_phi * dphi_dxi0
-
-        J[:, 0, 1] = -rho * sin_theta * dtheta_dxi1 * cos_phi
-        J[:, 1, 1] = -rho * sin_theta * dtheta_dxi1 * sin_phi
-        J[:, 2, 1] = rho * cos_theta * dtheta_dxi1
-
-        J[:, 0, 2] = cos_theta * drho_dxi2 * cos_phi
-        J[:, 1, 2] = cos_theta * drho_dxi2 * sin_phi
-        J[:, 2, 2] = sin_theta * drho_dxi2
-        return J
+class TorusChartDecoder(TorusChart):
+    """Backward-compatible name for the shared analytic torus chart."""
 
 
 # ═══════════════════════════════════════════════════════════════════════════

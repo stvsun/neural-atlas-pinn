@@ -23,9 +23,16 @@ import json
 import os
 import sys
 import time
+from pathlib import Path
 
 import numpy as np
 import torch
+
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
+from mapped_sphere.geometry import jacobian
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from atlas import load_atlas  # noqa: E402
@@ -39,7 +46,7 @@ def invert(atlas, x: torch.Tensor, i: int, iters: int = 10) -> torch.Tensor:
     for _ in range(iters):
         xr = xi.clone().requires_grad_(True)
         y = atlas.decode(xr, i)
-        jac = torch.stack([torch.autograd.grad(y[:, k].sum(), xr, retain_graph=True)[0] for k in range(3)], 1)
+        jac = jacobian(y, xr, create_graph=False)
         res = (y - x).detach()
         xi = (xr - torch.linalg.solve(jac, res.unsqueeze(-1)).squeeze(-1)).detach()
         if float(res.norm(dim=1).max()) < 1e-12:

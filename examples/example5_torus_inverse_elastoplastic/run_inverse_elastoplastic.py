@@ -35,6 +35,7 @@ _REPO_ROOT = str(Path(__file__).resolve().parents[2])
 if _REPO_ROOT not in sys.path:
     sys.path.insert(0, _REPO_ROOT)
 
+from mapped_sphere.maps import TorusChart
 from mapped_sphere.elastoplastic.chart_vector_fem import ChartVectorFEMSolver
 from mapped_sphere.elastoplastic.incremental_solver import (
     IncrementalSolver,
@@ -65,17 +66,8 @@ class TorusSDF:
         return torch.sqrt((xy_dist - self.R) ** 2 + x[:, 2] ** 2) - self.r
 
 
-class TorusChartDecoder(torch.nn.Module):
-    """Analytic map from reference coords xi in [-1,1]^3 to physical torus coords.
-
-    Each chart covers a sector of the torus centred at phi_center with angular
-    half-width phi_halfwidth in the major-loop direction.
-
-    Mapping:
-        xi_0  ->  phi = phi_center + xi_0 * phi_halfwidth   (major angle)
-        xi_1  ->  theta = pi * xi_1                          (minor tube angle)
-        xi_2  ->  rho = 0.5 * r_minor * (1 + xi_2)          (radial, 0 to r_minor)
-    """
+class TorusChartDecoder(TorusChart):
+    """Shared torus chart retaining this driver's radius argument names."""
 
     def __init__(
         self,
@@ -84,28 +76,8 @@ class TorusChartDecoder(torch.nn.Module):
         phi_center: float = 0.0,
         phi_halfwidth: float = math.pi / 4,
     ):
-        super().__init__()
-        self.R = R_major
-        self.r = r_minor
-        self.phi_center = phi_center
-        self.phi_halfwidth = phi_halfwidth
-
-    def forward(self, xi: torch.Tensor, **kwargs) -> torch.Tensor:
-        """Map xi in [-1,1]^3 -> (x, y, z) on the torus."""
-        phi = self.phi_center + xi[:, 0] * self.phi_halfwidth
-        theta = math.pi * xi[:, 1]
-        rho = 0.5 * self.r * (1.0 + xi[:, 2])
-
-        cos_phi = torch.cos(phi)
-        sin_phi = torch.sin(phi)
-        cos_theta = torch.cos(theta)
-        sin_theta = torch.sin(theta)
-
-        rr = self.R + rho * cos_theta
-        x = rr * cos_phi
-        y = rr * sin_phi
-        z = rho * sin_theta
-        return torch.stack([x, y, z], dim=1)
+        super().__init__(R=R_major, r=r_minor, phi_center=phi_center,
+                         phi_halfwidth=phi_halfwidth)
 
 
 def wrap_to_pi(a: torch.Tensor) -> torch.Tensor:

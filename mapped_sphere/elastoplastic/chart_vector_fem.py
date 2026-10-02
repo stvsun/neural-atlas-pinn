@@ -17,6 +17,8 @@ from typing import Callable, Optional, Tuple
 
 import torch
 
+from mapped_sphere.geometry import ChartGeometry, jacobian
+
 # ---------------------------------------------------------------------------
 # Freudenthal 6-tet decomposition of a unit cube
 # 8 corners indexed by (dz*4 + dy*2 + dx).
@@ -283,13 +285,14 @@ class ChartVectorFEMSolver:
             # singular nodal-map tets at the torus centerline while still giving a
             # consistent physical push-forward for P1 chart gradients.
             self.geom_J = self.decoder_jacobian(self.elem_centroids_ref)
-            self.geom_J_inv = torch.linalg.inv(self.geom_J)
-            self.geom_detJ = torch.det(self.geom_J)
+            geometry = ChartGeometry(self.geom_J)
+            self.geom_J_inv = geometry.inverse
+            self.geom_detJ = geometry.determinant
             self.elem_centroids_phys = self.chart_decoder(
                 self.elem_centroids_ref, **self.decoder_kwargs
             )
-            self.dNdx_phys = torch.einsum("eaj,ejk->eak", self.dNdx_ref, self.geom_J_inv)
-            self.vol_phys = self.vol_ref * torch.abs(self.geom_detJ)
+            self.dNdx_phys = geometry.vector_gradient(self.dNdx_ref)
+            self.vol_phys = self.vol_ref * geometry.volume
             self.dNdx = self.dNdx_phys
             self.vol = self.vol_phys
         else:
@@ -314,19 +317,7 @@ class ChartVectorFEMSolver:
 
         xi_var = xi.detach().clone().requires_grad_(True)
         x = self.chart_decoder(xi_var, **self.decoder_kwargs)
-        rows = []
-        for d in range(3):
-            grad_out = torch.zeros_like(x)
-            grad_out[:, d] = 1.0
-            g = torch.autograd.grad(
-                x,
-                xi_var,
-                grad_outputs=grad_out,
-                retain_graph=(d < 2),
-                create_graph=False,
-            )[0]
-            rows.append(g)
-        return torch.stack(rows, dim=1)
+        return jacobian(x, xi_var, create_graph=False)
 
     def compute_grad_u_ref(self, u: torch.Tensor) -> torch.Tensor:
         """Compute the chart-coordinate displacement gradient grad_xi(u)."""

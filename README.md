@@ -46,6 +46,9 @@ mapped-sphere-pinn/
 ├── mapped_sphere/            # shared solver library (imported by the examples)
 │   ├── device.py             #   CUDA / MPS / CPU device + dtype resolution
 │   ├── utils.py              #   RNG seeding
+│   ├── geometry.py           #   Jacobians, metrics, gradients, divergence, Laplacian
+│   ├── piola.py              #   vector/tensor Piola maps, diffusion, surface measures
+│   ├── maps.py               #   analytic torus maps and normals
 │   └── elastoplastic/        #   finite-strain elastoplasticity toolkit
 │       ├── chart_vector_fem.py   #   P1 tetrahedral vector FEM on a reference chart
 │       ├── return_mapping.py     #   differentiable (softplus) J2 return mapping
@@ -71,9 +74,9 @@ mapped-sphere-pinn/
 ```
 
 The `examples/` scripts are the entry points. The reusable numerics live in the
-`mapped_sphere` package. Examples 1, 3, and 5 import the package; Example 4's two scripts
-are fully standalone; Example 2 keeps its bunny-specific geometry, atlas and FEM modules in
-its own directory.
+`mapped_sphere` package. All five examples import its shared differential geometry
+tools. Example 2 keeps its bunny-specific geometry, atlas and FEM modules in its
+own directory.
 
 ---
 
@@ -115,6 +118,53 @@ python examples/example1_ellipsoid_laplace/run_ellipsoid_laplace.py --output-dir
 
 Every script accepts `--help` for the full list of options (geometry, hyperparameters,
 device, output directory).
+
+---
+
+## Differential geometry and Piola library
+
+The shared API uses `J[..., i, A] = dx_i/dxi_A`. Signed Piola maps use `det(J)`;
+volume integration, diffusion, and outward surface measures use `abs(det(J))`.
+Singular and nonfinite Jacobians raise `ValueError`; the library never clips or
+pseudoinverts them. See [NOTES.md](NOTES.md) for equations, shapes, and scope.
+
+```python
+import torch
+from mapped_sphere import ChartGeometry, TorusChart, jacobian, laplace_beltrami
+from mapped_sphere.piola import diffusion_pullback, contravariant_pullback
+
+xi = torch.tensor([[0.1, 0.2, 0.3]], dtype=torch.float64, requires_grad=True)
+chart = TorusChart(R=1.0, r=0.35)
+x = chart(xi)
+geometry = ChartGeometry(jacobian(x, xi))
+A = diffusion_pullback(geometry)              # |det J| J^-1 J^-T
+u = x.square().sum(-1)
+lap_u = laplace_beltrami(u, xi, geometry)      # Delta_x |x|^2 = 6
+flux_ref = contravariant_pullback(x, geometry, oriented=False)
+```
+
+| Example | Shared operations used |
+|---|---|
+| 1: ellipsoid | Affine geometry and Laplace–Beltrami residual |
+| 2: bunny FEM | Decoder Jacobian and exact diffusion pullback |
+| 2: bunny PINN | Frame gradient and physical divergence |
+| 3: forward plasticity | Torus chart, mapped FEM gradients and volumes |
+| 4: inverse Neo-Hookean | Torus coordinates, normals, displacement Jacobian |
+| 5: inverse plasticity | Torus chart and mapped FEM geometry |
+
+Bunny FEM assembly now uses the exact Jacobian instead of its previous singular
+value and determinant clipping. Bunny PINN retains its affine frame coordinates.
+Example 4 retains its prescribed-field inverse calculation. The shared API does
+not establish chart injectivity, equilibrium convergence, or parameter identifiability.
+
+```bash
+pip install -e ".[test,bunny]"
+python -m pytest -q
+```
+
+The tests include nonlinear mapped operators, Piola divergence and flux identities,
+parameter derivatives, and an affine FEM patch. They do not rerun the full paper
+training and inverse campaigns.
 
 ---
 

@@ -1,0 +1,391 @@
+{
+  "seed": 20261002,
+  "dtype": "float64",
+  "mode": "cpu",
+  "fem": {
+    "identity": {
+      "nodes": 27,
+      "elements": 48,
+      "geometry": {
+        "geom_J": {
+          "max_abs": 0.0,
+          "relative_l2": 0.0
+        },
+        "geom_J_inv": {
+          "max_abs": 0.0,
+          "relative_l2": 0.0
+        },
+        "geom_detJ": {
+          "max_abs": 0.0,
+          "relative_l2": 0.0
+        },
+        "dNdx": {
+          "max_abs": 0.0,
+          "relative_l2": 0.0
+        },
+        "vol": {
+          "max_abs": 0.0,
+          "relative_l2": 0.0
+        },
+        "nodes_phys": {
+          "max_abs": 0.0,
+          "relative_l2": 0.0
+        }
+      },
+      "F": {
+        "max_abs": 0.0,
+        "relative_l2": 0.0
+      },
+      "forces": {
+        "max_abs": 0.0,
+        "relative_l2": 0.0
+      },
+      "stiffness": {
+        "max_abs": 0.0,
+        "relative_l2": 0.0
+      },
+      "objective_before_after": [
+        0.014923524482911989,
+        0.014923524482911989
+      ],
+      "parameter_gradients_before_after": [
+        [
+          0.007006495927791274,
+          0.0029626577513850462
+        ],
+        [
+          0.007006495927791274,
+          0.0029626577513850462
+        ]
+      ],
+      "parameter_gradient_error": {
+        "max_abs": 0.0,
+        "relative_l2": 0.0
+      }
+    },
+    "affine": {
+      "nodes": 27,
+      "elements": 48,
+      "geometry": {
+        "geom_J": {
+          "max_abs": 0.0,
+          "relative_l2": 0.0
+        },
+        "geom_J_inv": {
+          "max_abs": 0.0,
+          "relative_l2": 0.0
+        },
+        "geom_detJ": {
+          "max_abs": 0.0,
+          "relative_l2": 0.0
+        },
+        "dNdx": {
+          "max_abs": 0.0,
+          "relative_l2": 0.0
+        },
+        "vol": {
+          "max_abs": 0.0,
+          "relative_l2": 0.0
+        },
+        "nodes_phys": {
+          "max_abs": 0.0,
+          "relative_l2": 0.0
+        }
+      },
+      "F": {
+        "max_abs": 0.0,
+        "relative_l2": 0.0
+      },
+      "forces": {
+        "max_abs": 0.0,
+        "relative_l2": 0.0
+      },
+      "stiffness": {
+        "max_abs": 0.0,
+        "relative_l2": 0.0
+      },
+      "objective_before_after": [
+        0.016153378172479353,
+        0.016153378172479353
+      ],
+      "parameter_gradients_before_after": [
+        [
+          0.008319367313017696,
+          0.003070225548290815
+        ],
+        [
+          0.008319367313017696,
+          0.003070225548290815
+        ]
+      ],
+      "parameter_gradient_error": {
+        "max_abs": 0.0,
+        "relative_l2": 0.0
+      }
+    },
+    "curved_autograd": {
+      "nodes": 27,
+      "elements": 48,
+      "geometry": {
+        "geom_J": {
+          "max_abs": 0.0,
+          "relative_l2": 0.0
+        },
+        "geom_J_inv": {
+          "max_abs": 0.0,
+          "relative_l2": 0.0
+        },
+        "geom_detJ": {
+          "max_abs": 0.0,
+          "relative_l2": 0.0
+        },
+        "dNdx": {
+          "max_abs": 0.0,
+          "relative_l2": 0.0
+        },
+        "vol": {
+          "max_abs": 0.0,
+          "relative_l2": 0.0
+        },
+        "nodes_phys": {
+          "max_abs": 0.0,
+          "relative_l2": 0.0
+        }
+      },
+      "F": {
+        "max_abs": 0.0,
+        "relative_l2": 0.0
+      },
+      "forces": {
+        "max_abs": 0.0,
+        "relative_l2": 0.0
+      },
+      "stiffness": {
+        "max_abs": 0.0,
+        "relative_l2": 0.0
+      },
+      "objective_before_after": [
+        0.0029868991652834197,
+        0.0029868991652834197
+      ],
+      "parameter_gradients_before_after": [
+        [
+          0.0013245343951342487,
+          0.0006074148024131881
+        ],
+        [
+          0.0013245343951342487,
+          0.0006074148024131881
+        ]
+      ],
+      "parameter_gradient_error": {
+        "max_abs": 0.0,
+        "relative_l2": 0.0
+      }
+    },
+    "torus_ex3": {
+      "nodes": 27,
+      "elements": 48,
+      "geometry": {
+        "geom_J": {
+          "max_abs": 1.1102230246251565e-16,
+          "relative_l2": 4.929436599385898e-17
+        },
+        "geom_J_inv": {
+          "max_abs": 1.3322676295501878e-15,
+          "relative_l2": 1.0579205992539349e-16
+        },
+        "geom_detJ": {
+          "max_abs": 2.7755575615628914e-17,
+          "relative_l2": 1.2880685385790874e-16
+        },
+        "dNdx": {
+          "max_abs": 1.7763568394002505e-15,
+          "relative_l2": 1.0531653592160248e-16
+        },
+        "vol": {
+          "max_abs": 3.469446951953614e-18,
+          "relative_l2": 1.2436446678942005e-16
+        },
+        "nodes_phys": {
+          "max_abs": 0.0,
+          "relative_l2": 0.0
+        }
+      },
+      "F": {
+        "max_abs": 3.469446951953614e-18,
+        "relative_l2": 8.61371562122027e-19
+      },
+      "forces": {
+        "max_abs": 6.938893903907228e-18,
+        "relative_l2": 1.0819607372794673e-16
+      },
+      "stiffness": {
+        "max_abs": 3.552713678800501e-15,
+        "relative_l2": 1.1680352376072494e-16
+      },
+      "objective_before_after": [
+        0.01042331856055551,
+        0.010423318560555509
+      ],
+      "parameter_gradients_before_after": [
+        [
+          0.004974309619668166,
+          0.0020542906593632006
+        ],
+        [
+          0.004974309619668165,
+          0.0020542906593632
+        ]
+      ],
+      "parameter_gradient_error": {
+        "max_abs": 8.673617379884035e-19,
+        "relative_l2": 1.801884708027547e-16
+      }
+    },
+    "torus_ex5": {
+      "nodes": 27,
+      "elements": 48,
+      "geometry": {
+        "geom_J": {
+          "max_abs": 1.1102230246251565e-16,
+          "relative_l2": 4.2886467362361053e-17
+        },
+        "geom_J_inv": {
+          "max_abs": 8.881784197001252e-16,
+          "relative_l2": 5.4013020592401685e-17
+        },
+        "geom_detJ": {
+          "max_abs": 2.7755575615628914e-17,
+          "relative_l2": 9.803347063943982e-17
+        },
+        "dNdx": {
+          "max_abs": 1.7763568394002505e-15,
+          "relative_l2": 5.454626074705896e-17
+        },
+        "vol": {
+          "max_abs": 3.469446951953614e-18,
+          "relative_l2": 1.0882891155777804e-16
+        },
+        "nodes_phys": {
+          "max_abs": 0.0,
+          "relative_l2": 0.0
+        }
+      },
+      "F": {
+        "max_abs": 3.469446951953614e-18,
+        "relative_l2": 6.372959194368214e-19
+      },
+      "forces": {
+        "max_abs": 3.469446951953614e-18,
+        "relative_l2": 8.26382554558316e-17
+      },
+      "stiffness": {
+        "max_abs": 3.552713678800501e-15,
+        "relative_l2": 9.722669871260973e-17
+      },
+      "objective_before_after": [
+        0.007469718115811768,
+        0.007469718115811768
+      ],
+      "parameter_gradients_before_after": [
+        [
+          0.003914950206326992,
+          0.001407142994771207
+        ],
+        [
+          0.0039149502063269915,
+          0.0014071429947712067
+        ]
+      ],
+      "parameter_gradient_error": {
+        "max_abs": 8.673617379884035e-19,
+        "relative_l2": 2.1490932317741458e-16
+      }
+    }
+  },
+  "ex4": {
+    "ex4_global": {
+      "points": {
+        "max_abs": 0.0,
+        "relative_l2": 0.0
+      },
+      "normals": {
+        "max_abs": 0.0,
+        "relative_l2": 0.0
+      },
+      "traction": {
+        "max_abs": 0.0,
+        "relative_l2": 0.0
+      },
+      "detF": {
+        "max_abs": 0.0,
+        "relative_l2": 0.0
+      },
+      "objective": {
+        "max_abs": 0.0,
+        "relative_l2": 0.0
+      },
+      "parameter_gradients": {
+        "max_abs": 0.0,
+        "relative_l2": 0.0
+      },
+      "parameter_gradients_before_after": [
+        [
+          0.04491153518141916,
+          5.778566068341709
+        ],
+        [
+          0.04491153518141916,
+          5.778566068341709
+        ]
+      ],
+      "objective_before_after": [
+        20.2541737370639,
+        20.2541737370639
+      ],
+      "samples": 64
+    },
+    "ex4_schwarz": {
+      "points": {
+        "max_abs": 0.0,
+        "relative_l2": 0.0
+      },
+      "normals": {
+        "max_abs": 0.0,
+        "relative_l2": 0.0
+      },
+      "traction": {
+        "max_abs": 0.0,
+        "relative_l2": 0.0
+      },
+      "detF": {
+        "max_abs": 0.0,
+        "relative_l2": 0.0
+      },
+      "objective": {
+        "max_abs": 0.0,
+        "relative_l2": 0.0
+      },
+      "parameter_gradients": {
+        "max_abs": 0.0,
+        "relative_l2": 0.0
+      },
+      "parameter_gradients_before_after": [
+        [
+          0.04491153518141916,
+          5.778566068341709
+        ],
+        [
+          0.04491153518141916,
+          5.778566068341709
+        ]
+      ],
+      "objective_before_after": [
+        20.2541737370639,
+        20.2541737370639
+      ],
+      "samples": 64
+    }
+  }
+}

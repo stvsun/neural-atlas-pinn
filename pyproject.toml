@@ -16,6 +16,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+test = ["pytest>=7"]
 # Example 2 (Stanford Bunny): exact mesh geometry and sparse direct solves.
 bunny = ["scipy>=1.9", "pyvista>=0.40"]
 

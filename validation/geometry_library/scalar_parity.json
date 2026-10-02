@@ -1,0 +1,54 @@
+{
+  "mode": "local CPU",
+  "seed": 142,
+  "dtype": "float64",
+  "torch": "2.14.1",
+  "python": "/Users/wsun/Documents/Softwares/WOS/.venv/bin/python",
+  "commit": "b74022111d3bf61d8428e0e1ebb279efca72a48f",
+  "ex1": {
+    "n_points": 128,
+    "max_residual_difference": 8.881784197001252e-16,
+    "max_loss_parameter_gradient_difference": 1.7763568394002505e-15,
+    "max_parameter_gradient_magnitude": 6.473604743246437,
+    "unused_parameter_gradients": [
+      {
+        "index": 5,
+        "old_none": true,
+        "new_none": false
+      }
+    ]
+  },
+  "bunny": [
+    {
+      "charts": 8,
+      "points_per_chart": 128,
+      "min_singular_value": 0.984703990976166,
+      "min_det": 0.9775462439720879,
+      "max_det": 1.0129140858514671,
+      "max_jacobian_difference": 0,
+      "max_diffusion_difference": 1.0658141036401503e-14,
+      "max_frame_gradient_difference": 0
+    },
+    {
+      "charts": 12,
+      "points_per_chart": 128,
+      "min_singular_value": 0.9884542887532396,
+      "min_det": 0.9843174805255882,
+      "max_det": 1.0098152650782293,
+      "max_jacobian_difference": 0,
+      "max_diffusion_difference": 9.992007221626409e-15,
+      "max_frame_gradient_difference": 0
+    }
+  ],
+  "tolerance": 1e-12,
+  "source_sha256": {
+    "mapped_sphere/geometry.py": "197016ba65691ff8fcc7cd4a8c42a3d6fcbdd8e8ea3d4222747cc57748bf74fb",
+    "mapped_sphere/piola.py": "e4cc1afab06bc014f76799f8a3f8c9701846e4d07bc77cb6a9296abce1cf440d",
+    "examples/example1_ellipsoid_laplace/run_ellipsoid_laplace.py": "3db2d4df830c2022c1ea5674ba53589aa407f134ae380d6e2dcf571923248442",
+    "examples/example2_bunny_poisson/atlas.py": "f4ebcddbb8c09b8ed7e70b271c05c3dde5f773759049d83cca46c4a56548e939"
+  },
+  "limitations": [
+    "This checks sampled operator and gradient parity, not chart global injectivity.",
+    "No bunny mesh download, end-to-end geometry solve, or training campaign was run."
+  ]
+}

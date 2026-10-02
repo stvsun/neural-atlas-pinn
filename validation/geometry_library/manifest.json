@@ -1,0 +1,63 @@
+{
+  "date": "2026-10-02",
+  "mode": "local CPU",
+  "base_commit": "b74022111d3bf61d8428e0e1ebb279efca72a48f",
+  "working_tree_changes": true,
+  "python": "3.14.6 (main, Jun 10 2026, 10:03:53) [Clang 21.0.0 (clang-2100.0.123.102)]",
+  "python_executable": "/Users/wsun/Documents/Softwares/WOS/.venv/bin/python",
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "torch": "2.14.1",
+  "numpy": "2.5.3",
+  "scipy": "1.18.1",
+  "pytest": "9.1.1",
+  "test_command": [
+    "/Users/wsun/Documents/Softwares/WOS/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "--junitxml=/Users/wsun/Documents/Softwares/neural-atlas-pinn/validation/geometry_library/pytest.xml"
+  ],
+  "test_exit_code": 0,
+  "parity_seeds": {
+    "scalar": 142,
+    "mechanics": 20261002
+  },
+  "checks": {
+    "cli_help_from_tmp": "7/7 exit 0",
+    "wheel_import_from_tmp": true,
+    "wheel_readme_laplacian": 6.000000000000001
+  },
+  "source_sha256": {
+    "examples/example1_ellipsoid_laplace/run_ellipsoid_laplace.py": "3db2d4df830c2022c1ea5674ba53589aa407f134ae380d6e2dcf571923248442",
+    "examples/example2_bunny_poisson/atlas.py": "f4ebcddbb8c09b8ed7e70b271c05c3dde5f773759049d83cca46c4a56548e939",
+    "examples/example2_bunny_poisson/chart_fem.py": "1b3d0a89ad5db43493d9523a2258cfdc15819f4235d0165bdeaaffc6c46c7626",
+    "examples/example2_bunny_poisson/geometry.py": "f171f7d5c629806956a31d3545bd26382cad0511eab47b4a43caef9275372f9d",
+    "examples/example2_bunny_poisson/plot_results.py": "2352f6ee77ade562742d2a5d5bd6df2457b61c0e22f91245b678aa93b2c5b9fa",
+    "examples/example2_bunny_poisson/run_fem.py": "ee5545e29ce4d52726a5511aa41120ba612b79659cda169877f37e0139c05234",
+    "examples/example2_bunny_poisson/run_pinn.py": "dfae05441cc71090d405bba58c134c958ef09d815b62609e8ebcef8fe3ea56d3",
+    "examples/example3_torus_forward_elastoplastic/run_forward_bvp.py": "eb1bd6a291f72f62e3ac88df34bf3cfd77af8c28971fd3b93e8aea7df37dfb84",
+    "examples/example4_torus_inverse_neohookean/run_global_atlas.py": "ba4713a76ed63b45eac4c6548208c09b290ff683699c0e435d3d8e840187c52d",
+    "examples/example4_torus_inverse_neohookean/run_schwarz_dual.py": "58f38ee07b4bd730733645febc28c376a8848c9af17962ab0e695795d17898f3",
+    "examples/example5_torus_inverse_elastoplastic/run_inverse_elastoplastic.py": "f4e0932689da79cbd2fe5ff8fd00e28622e6104d652ce3abc7a2665ccc5ecede",
+    "mapped_sphere/__init__.py": "9eea325df691253674e311e765a8a96969256511225a9a7b8500d136baca101e",
+    "mapped_sphere/device.py": "3156d77a52291b806fd62b35ce6453236bd28c4eeea0b41dea41a766fa8f9e1d",
+    "mapped_sphere/elastoplastic/__init__.py": "fb41d69ece25c70fe8c084bf6b33fe460ad07927b1d50a360fe8b037775afd5f",
+    "mapped_sphere/elastoplastic/chart_vector_fem.py": "a59b43268506acb20fc9ccb537965bb705f3404800525819847f0d479b183cb2",
+    "mapped_sphere/elastoplastic/incremental_solver.py": "d1bbadd86bd3ab8270cbfe267dd9ef59af3fa866cf360e58c20e701031ee7659",
+    "mapped_sphere/elastoplastic/return_mapping.py": "b0d9b71175e185c1dc6b7c22dedf86ca2be1715ca7701d20488373d08f3e2030",
+    "mapped_sphere/elastoplastic/schwarz_vector.py": "be2894548036f4ec469bbb47f32444ccd4ae0bafc6eeafd8c277d502b2404903",
+    "mapped_sphere/geometry.py": "197016ba65691ff8fcc7cd4a8c42a3d6fcbdd8e8ea3d4222747cc57748bf74fb",
+    "mapped_sphere/maps.py": "d1d7be0c573f7d9ffd6d0040984a8e61ddc957939ff8667fbffced97a86fbd00",
+    "mapped_sphere/piola.py": "e4cc1afab06bc014f76799f8a3f8c9701846e4d07bc77cb6a9296abce1cf440d",
+    "mapped_sphere/utils.py": "47e1866188dcb55affad2b05705a24ee470e7324ccd444a8c67e66bfb552801d",
+    "tests/test_example_geometry.py": "8d8261bf73a51d91222bf2239c5d9572a3d3208b3795e288f8be330f0351e8f2",
+    "tests/test_geometry.py": "32bb596d3553ecd8291b0fe93054972555e80a7d47f79fba4688a3da845d0ca1",
+    "tests/test_piola.py": "9dba8320147854b90f44012c77bc6ccfb4e852b240d25f435da60b692b1a85b2"
+  },
+  "limits": [
+    "No full paper training or inverse campaign",
+    "No bunny surface-mesh solve",
+    "No GPU validation",
+    "No chart-injectivity or constitutive validation"
+  ]
+}
